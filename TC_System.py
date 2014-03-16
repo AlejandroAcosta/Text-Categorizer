@@ -25,7 +25,7 @@ class TC_System:
         
     def __str__(self):
         """prints the data members of the class for debugging purposes"""
-        rep = str(self.Bag_o_words) + str(self.__TF)
+        rep = str(self.Bag_o_words) + str(self.__TF) + str(self.__IDF)
         return rep
         
     def categorize(self, train_name):
@@ -145,7 +145,8 @@ class TC_System:
                             DF[word] = 1
                             
                 # compute IDF
+                D_bar = len(Doc_wordlist) # |D| : number of documents
                 for word in self.Bag_o_words:
-                   # self.__IDF =
+                   self.__IDF[word] = log(D_bar/DF[word])
         print("this is TF*IDF")
 
