@@ -25,7 +25,7 @@ class TC_System:
         
     def __str__(self):
         """prints the data members of the class for debugging purposes"""
-        rep = str(self.Categories)+str(self.Bag_o_words)
+        rep = str(self.Bag_o_words) + str(self.__TF)
         return rep
         
     def categorize(self, train_name):
@@ -127,10 +127,10 @@ class TC_System:
         """ Will compute the TF*IDF value and return the document vectors (containing word weights)"""
         for word in self.Bag_o_words:
             for category in self.Categories:
-                for document in self.Cat_vector:
+                for document in self.Cat_vector[category]:
                     # create an empty dictionary and fill it with the term
                     # frequency of the word in this document
-                    __TF[document] = {}
-                    __TF[document][word] = self.Doc_wordlist[document].count(word)
+                    self.__TF[document] = {}
+                    self.__TF[document][word] = self.Doc_wordlist[document].count(word)
         print("this is TF*IDF")
 
