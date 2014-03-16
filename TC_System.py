@@ -14,7 +14,9 @@ class TC_System:
                     # corresponding to each category
     Prototype = {} # prototype vector representing trained system
     Bag_o_words = [] # list of all words in corpus
-
+    Doc_wordlist = {} # wordlist associated with every document
+    __TF = {} # Term Frequency for all words and all documents
+    __IDF = {} # Inverse Document Frequency for all documents
 
     # Constructor
     def __init__(self):
@@ -53,6 +55,7 @@ class TC_System:
         """will train the dataset"""
         # compile the wordlist
         self.__make_wordlist()
+        
         # compute the document vector for every document as a dictionary
         # mapping document names to corresponding document vector
         doc_vectors = self.__TF_IDF(self.Bag_o_words, self.Cat_vector)
@@ -84,6 +87,9 @@ class TC_System:
         """Looks at all the documents available and constructs a wordlist using nltk for assistance"""
         for category in self.Categories:
             for doc_name in self.Cat_vector[category]:
+                # create empty word list for this document
+                self.Doc_wordlist[doc_name] = []
+                
                 # read the file into a string then close the file
                 doc_path = "TC_provided" + doc_name
                 doc_file = open(doc_path, "r")
@@ -100,13 +106,17 @@ class TC_System:
                     for word in tokens:
                         if word not in self.Bag_o_words:
                             self.Bag_o_words.append(word)
+                            
+                        # make wordlist for every document
+                        self.Doc_wordlist[doc_name].append(word) 
+                            
 
-                # strip words in the stoplist from the bag-o-words
-                for stop_sign in self.STOPLIST:
-                    try:
-                        self.Bag_o_words.remove(stop_sign)
-                    except ValueError: # raised if stop_sign not in bag-o-words
-                        pass
+        # strip words in the stoplist from the bag-o-words and document word vectors
+        for stop_sign in self.STOPLIST:
+            try:
+                self.Bag_o_words.remove(stop_sign)
+            except ValueError: # raised if stop_sign not in bag-o-words
+                pass
                         
                 
     def __fill_wordlist(self):
@@ -115,5 +125,12 @@ class TC_System:
         
     def __TF_IDF(self, wordlist, Cat_vector):
         """ Will compute the TF*IDF value and return the document vectors (containing word weights)"""
+        for word in self.Bag_o_words:
+            for category in self.Categories:
+                for document in self.Cat_vector:
+                    # create an empty dictionary and fill it with the term
+                    # frequency of the word in this document
+                    __TF[document] = {}
+                    __TF[document][word] = self.Doc_wordlist[document].count(word)
         print("this is TF*IDF")
 
