@@ -12,11 +12,21 @@ def main():
     # TC_provided/corpus1_train.labels OR
     # TC_provided/corpus2_train.labels OR
     # TC_provided/corpus3_train.labels are the training files for this project
-    train_name = "TC_provided/corpus1_train.labels" #input("Please enter the name for your trainig file:\n")
+    train_name = "TC_provided/corpus1_train.labels" #input("Please enter the name for your trainig file: ")
 
     TC = TC_System()
-    
+
+    print("Please wait as I process your corpus")
     TC.categorize(train_name)
+
+    print("Your system is being trained...")
+    TC.train()
+
+    out_name = input("What name would you like to give the trained system?: ")
+    TC.write_trained(out_name)
+
+    print("Printing the object")
+    print(TC)
     
     
 main()
