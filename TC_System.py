@@ -138,7 +138,7 @@ class TC_System:
                         self.__TF[document][word] = self.Doc_wordlist[document].count(word)
 
                     # computing DF
-                    if word in Doc_wordlist[document]:
+                    if word in self.Doc_wordlist[document]:
                         try:    # increment the DF since word in doc
                             DF[word] += 1
                         except KeyError: # initialize DF to 1
