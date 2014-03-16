@@ -1,6 +1,6 @@
 # Text Categorizer class
 
-import nltk
+import nltk, math
 
 class TC_System:
     """A Text Categorization System that implements training and testing functionality"""
@@ -107,7 +107,7 @@ class TC_System:
                         if word not in self.Bag_o_words:
                             self.Bag_o_words.append(word)
                             
-                        # make wordlist for every document
+                        # make wordlist for every document (with repeats)
                         self.Doc_wordlist[doc_name].append(word) 
                             
 
@@ -124,13 +124,28 @@ class TC_System:
         print("I'm gonna fill you up")
         
     def __TF_IDF(self, wordlist, Cat_vector):
-        """ Will compute the TF*IDF value and return the document vectors (containing word weights)"""
-        for word in self.Bag_o_words:
-            for category in self.Categories:
-                for document in self.Cat_vector[category]:
-                    # create an empty dictionary and fill it with the term
-                    # frequency of the word in this document
-                    self.__TF[document] = {}
-                    self.__TF[document][word] = self.Doc_wordlist[document].count(word)
+        """ Will compute the TF*IDF value and return the document vectors (containing word weights)"""    
+        for category in self.Categories:
+            for document in self.Cat_vector[category]:
+                DF = {} # create an empty document frequency vector for words
+                for word in self.Bag_o_words:
+                    # computing TF
+                    try: # test to see if document has TF vector
+                        len(self.__TF[document])
+                    except KeyError: # create one if it doesn't
+                        self.__TF[document] = {}
+                    finally: # and finally add the wordcount to it
+                        self.__TF[document][word] = self.Doc_wordlist[document].count(word)
+
+                    # computing DF
+                    if word in Doc_wordlist[document]:
+                        try:    # increment the DF since word in doc
+                            DF[word] += 1
+                        except KeyError: # initialize DF to 1
+                            DF[word] = 1
+                            
+                # compute IDF
+                for word in self.Bag_o_words:
+                   # self.__IDF =
         print("this is TF*IDF")
 
