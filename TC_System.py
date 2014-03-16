@@ -10,23 +10,24 @@ class TC_System:
 
     # Variables defining the system 
     Categories = [] # vector of the different categories that exist
-    Cat_vector = {} # category vector: contains list of documents corresponding to each category
+    Cat_vector = {} # category vector: contains list of documents
+                    # corresponding to each category
     Prototype = {} # prototype vector representing trained system
-    Bag-o-words = [] # list of all words in corpus
+    Bag_o_words = [] # list of all words in corpus
 
 
     # Constructor
     def __init__(self):
         print("This is your captain speaking. Please enjoy your ride as we " \
               "utilize this text categorization system")
-
-    # prints the data members of the class for debuggin purposes
+        
     def __str__(self):
-        rep = str(self.Categories)+str(self.Cat_vector)
+        """prints the data members of the class for debugging purposes"""
+        rep = str(self.Categories)+str(self.Bag_o_words)
         return rep
         
     def categorize(self, train_name):
-        # open file, read from it, and then close it
+        """open file, read from it, and then close it"""
         train_file = open(train_name, "r")
         documents = train_file.readlines()
         train_file.close()
@@ -36,7 +37,7 @@ class TC_System:
         for item in documents:
             # parsing the string
             space_location = item.find(" ")
-            document_name = item[2:space_location] # ignoring "./" at beginning of document path
+            document_name = item[1:space_location] # ignoring "." at beginning of document path
             doc_cat = item[space_location+1:-1]
 
             # determining if category has been encountered
@@ -48,34 +49,71 @@ class TC_System:
 
         print("Categorization complete")
 
-    # will train the dataset
     def train(self):
+        """will train the dataset"""
         # compile the wordlist
+        self.__make_wordlist()
+        # compute the document vector for every document as a dictionary
+        # mapping document names to corresponding document vector
+        doc_vectors = self.__TF_IDF(self.Bag_o_words, self.Cat_vector)
 
-        # compute the document vector for every document
-        doc_vector = __TF_IDF(self.wordlist, self.Cat_vector)
+##        for category in Categories:
+##            prototype[category] = []
+##            for document in Cat_vectors[category]:
+##                for i in range(len(doc_vectors[document])):
+##                    prototype[category][i] += doc_vectors[document][i]
 
-        for category in Categories:
-            for document in Cat_vector[category]:
                 # add up the category vector to create the prototype vector
                 
         print("Your system has been trained")
 
-    # write train 
     def write_trained(self, out_filename):
+        """  write trained system to file. """
         print("Mission Accomplished.\nThank you for choosing us " \
               "for your text categorization needs.")
 
-    # will unpickle the object representing the trained system and load it up
     def load(self, trained_name):
+        """ will unpickle the object representing the trained system and load it up"""
         print("this will unpickle the required object(s)")
 
     def test(self):
+        """ Will test the documents given to the structure it has learned. """
         print("this is test")
 
+    def __make_wordlist(self):
+        """Looks at all the documents available and constructs a wordlist using nltk for assistance"""
+        for category in self.Categories:
+            for doc_name in self.Cat_vector[category]:
+                # read the file into a string then close the file
+                doc_path = "TC_provided" + doc_name
+                doc_file = open(doc_path, "r")
+                document = doc_file.read()
+                doc_file.close()
+
+                # Segment the document into sentences
+                sentence_segmenter = nltk.data.load("tokenizers/punkt/english.pickle")
+                doc_sentences = sentence_segmenter.tokenize(document.strip())
+
+                # tokenize each sentence
+                for sentence in doc_sentences:
+                    tokens = nltk.word_tokenize(sentence)
+                    for word in tokens:
+                        if word not in self.Bag_o_words:
+                            self.Bag_o_words.append(word)
+
+                # strip words in the stoplist from the bag-o-words
+                for stop_sign in self.STOPLIST:
+                    try:
+                        self.Bag_o_words.remove(stop_sign)
+                    except ValueError: # raised if stop_sign not in bag-o-words
+                        pass
+                        
+                
     def __fill_wordlist(self):
+        """ Will populate the word list used by the system"""
         print("I'm gonna fill you up")
         
-    def __TF_IDF(self, wordlist, Cat_vector): #figure out these parementers
+    def __TF_IDF(self, wordlist, Cat_vector):
+        """ Will compute the TF*IDF value and return the document vectors (containing word weights)"""
         print("this is TF*IDF")
 
