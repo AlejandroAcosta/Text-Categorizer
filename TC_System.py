@@ -83,6 +83,10 @@ class TC_System:
         """ Will test the documents given to the structure it has learned. """
         print("this is test")
 
+    def write_tested(self, out_filename):
+        """ Writes tested file to output in appropriate format. """
+        pass
+
     def __make_wordlist(self):
         """Looks at all the documents available and constructs a wordlist using nltk for assistance"""
         for category in self.Categories:
@@ -118,16 +122,12 @@ class TC_System:
             except ValueError: # raised if stop_sign not in bag-o-words
                 pass
                         
-                
-    def __fill_wordlist(self):
-        """ Will populate the word list used by the system"""
-        print("I'm gonna fill you up")
-        
+                        
     def __TF_IDF(self, wordlist, Cat_vector):
         """ Will compute the TF*IDF value and return the document vectors (containing word weights)"""    
+        DF = {} # create an empty document frequency vector for words
         for category in self.Categories:
             for document in self.Cat_vector[category]:
-                DF = {} # create an empty document frequency vector for words
                 for word in self.Bag_o_words:
                     # computing TF
                     try: # test to see if document has TF vector
@@ -139,14 +139,15 @@ class TC_System:
 
                     # computing DF
                     if word in self.Doc_wordlist[document]:
-                        try:    # increment the DF since word in doc
+                        try:    # increment the DF since word is in document
                             DF[word] += 1
                         except KeyError: # initialize DF to 1
                             DF[word] = 1
                             
-                # compute IDF
-                D_bar = len(Doc_wordlist) # |D| : number of documents
-                for word in self.Bag_o_words:
-                   self.__IDF[word] = log(D_bar/DF[word])
+        # compute IDF
+        D_bar = len(self.Doc_wordlist) # |D| : number of documents
+        for word in self.Bag_o_words:
+            # print(word)
+            self.__IDF[word] = math.log(D_bar/DF[word])
         print("this is TF*IDF")
 

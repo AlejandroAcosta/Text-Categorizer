@@ -21,12 +21,13 @@ def main():
 
     print("Your system is being trained...")
     TC.train()
+    print("Your system has been trained.")
 
 ##    out_name = input("What name would you like to give the trained system?: ")
 ##    TC.write_trained(out_name)
 
     print("Printing the object")
-    print(TC)
+    #print(TC)
     
     
 main()
