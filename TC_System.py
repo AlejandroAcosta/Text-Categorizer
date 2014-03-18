@@ -21,7 +21,7 @@ class TC_System:
     # Constructor. Modifies the stoplist to remove tokens it doesn't need
     def __init__(self):
         self.__STOPLIST.update(["(", ",", ")", "'s", ".", "-", "--", "n't", \
-                                "''", "``", ":", "reuters"])
+                                "''", "``", ":", "reuters", "...", "<", ">"])
         print("This is your captain speaking. Please enjoy your ride as we " \
               "utilize this text categorization system")
         
@@ -70,23 +70,24 @@ class TC_System:
         doc_vectors = self.__TF_IDF()#self.Bag_o_words, self.Cat_vector)
 
        # add up the category vector to create the prototype vector
-##        for category in self.Categories:
-##            self.Prototype[category] = {}
-##            print(category)
-##            for document in self.Cat_vector[category]:
-##                print(document)
-##                for word in set(self.Doc_wordlist[document]):
-##                    print(word)
-##                    try: # add to the prototype vector
-##                        print(doc_vectors[document][word])
-##                        self.Prototype[category][word] += doc_vectors[document][word]
-##                    except KeyError: # initialize if not yet done
-##                        print(doc_vectors[document][word])
-##                        self.Prototype[category][word] = doc_vectors[document][word]
+        for category in self.Categories:
+            self.Prototype[category] = {}
+            #print(category)
+            for document in self.Cat_vector[category]:
+               # print(document)
+                for word in set(self.Doc_wordlist[document]):
+                    #print(word)
+                    try: # add to the prototype vector
+                        #print(doc_vectors[document][word])
+                        self.Prototype[category][word] += doc_vectors[document][word]
+                    except KeyError: # initialize if not yet done
+                        #print(doc_vectors[document][word])
+                        self.Prototype[category][word] = doc_vectors[document][word]
 
 
     def write_trained(self, out_filename):
         """  write trained system to file. """
+        
         print("Mission Accomplished.\nThank you for choosing us " \
               "for your text categorization needs.")
 
