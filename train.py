@@ -18,6 +18,8 @@ def main():
 
     print("Please wait as I process your corpus")
     TC.categorize(train_name)
+    print("Categorization complete")
+
 
     print("Your system is being trained...")
     TC.train()

@@ -104,6 +104,7 @@ class TC_System:
 
     def test(self):
         """ Will test the documents given to the structure it has learned. """
+        
         print("this is test")
 
     def write_tested(self, out_filename):
