@@ -23,11 +23,11 @@ def main():
     TC.train()
     print("Your system has been trained.")
 
-##    out_name = input("What name would you like to give the trained system?: ")
-##    TC.write_trained(out_name)
+    out_name = "cat1out.dat" #input("What name would you like to give the trained system?: ")
+    TC.write_trained(out_name)
 
     print("Printing the object")
-    #print(TC)
+    print(TC)
     
     
 main()

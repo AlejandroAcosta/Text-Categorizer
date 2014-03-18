@@ -1,6 +1,6 @@
 # Text Categorizer class
 
-import nltk, math
+import nltk, math, pickle
 
 class TC_System:
     """A Text Categorization System that implements training and testing functionality"""
@@ -87,12 +87,19 @@ class TC_System:
 
     def write_trained(self, out_filename):
         """  write trained system to file. """
-        
+        f = open(out_filename, "wb")
+        pickle.dump(self.Categories, f)
+        pickle.dump(self.Prototype, f)
+        f.close()
         print("Mission Accomplished.\nThank you for choosing us " \
               "for your text categorization needs.")
 
     def load(self, trained_name):
         """ will unpickle the object representing the trained system and load it up"""
+        f = open(trained_name, "rb")
+        self.Categories = pickle.load(f)
+        self.Prototype = pickle.load(f)
+        f.close()
         print("this will unpickle the required object(s)")
 
     def test(self):
