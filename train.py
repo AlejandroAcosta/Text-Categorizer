@@ -17,12 +17,12 @@ def main():
     TC = TC_System()
 
     print("Please wait as I process your corpus")
-    TC.categorize(train_name)
+    Cat_vector = TC.categorize(train_name)
     print("Categorization complete")
 
 
     print("Your system is being trained...")
-    TC.train()
+    TC.train(Cat_vector)
     print("Your system has been trained.")
 
     out_name = "cat1out.dat" #input("What name would you like to give the trained system?: ")
