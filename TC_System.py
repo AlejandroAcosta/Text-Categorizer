@@ -6,7 +6,7 @@ class TC_System:
     """A Text Categorization System that implements training and testing functionality"""
 
     # Constants 
-    STOPLIST = set(nltk.corpus.stopwords.words('english'))
+    __STOPLIST = set(nltk.corpus.stopwords.words('english'))
 
     # Variables defining the system 
     Categories = [] # vector of the different categories that exist
@@ -18,14 +18,23 @@ class TC_System:
     __TF = {} # Term Frequency for all words and all documents
     __IDF = {} # Inverse Document Frequency for all documents
 
-    # Constructor
+    # Constructor. Modifies the stoplist to remove tokens it doesn't need
     def __init__(self):
+        self.__STOPLIST.update(["(", ",", ")", "'s", ".", "-", "--", "n't", \
+                                "''", "``", ":", "reuters"])
         print("This is your captain speaking. Please enjoy your ride as we " \
               "utilize this text categorization system")
         
     def __str__(self):
         """prints the data members of the class for debugging purposes"""
-        rep = str(self.Bag_o_words) + str(self.__TF) + str(self.__IDF)
+        #print(Doc_wordlist)
+        out_file = open("testout.txt","w")
+        for doc in self.Doc_wordlist:
+            out_file.write(doc + str(self.Doc_wordlist[doc]))
+            out_file.write("\n")
+        out_file.write("\n")
+        out_file.close()
+        rep = str("written to testout.txt")
         return rep
         
     def categorize(self, train_name):
@@ -58,17 +67,23 @@ class TC_System:
         
         # compute the document vector for every document as a dictionary
         # mapping document names to corresponding document vector
-        doc_vectors = self.__TF_IDF(self.Bag_o_words, self.Cat_vector)
+        doc_vectors = self.__TF_IDF()#self.Bag_o_words, self.Cat_vector)
 
-##        for category in Categories:
-##            prototype[category] = []
-##            for document in Cat_vectors[category]:
-##                for i in range(len(doc_vectors[document])):
-##                    prototype[category][i] += doc_vectors[document][i]
+       # add up the category vector to create the prototype vector
+##        for category in self.Categories:
+##            self.Prototype[category] = {}
+##            print(category)
+##            for document in self.Cat_vector[category]:
+##                print(document)
+##                for word in set(self.Doc_wordlist[document]):
+##                    print(word)
+##                    try: # add to the prototype vector
+##                        print(doc_vectors[document][word])
+##                        self.Prototype[category][word] += doc_vectors[document][word]
+##                    except KeyError: # initialize if not yet done
+##                        print(doc_vectors[document][word])
+##                        self.Prototype[category][word] = doc_vectors[document][word]
 
-                # add up the category vector to create the prototype vector
-                
-        print("Your system has been trained")
 
     def write_trained(self, out_filename):
         """  write trained system to file. """
@@ -90,10 +105,14 @@ class TC_System:
     def __make_wordlist(self):
         """Looks at all the documents available and constructs a wordlist using nltk for assistance"""
         for category in self.Categories:
-            for doc_name in self.Cat_vector[category]:
+            for doc_name in self.Cat_vector[category]:                
                 # create empty word list for this document
                 self.Doc_wordlist[doc_name] = []
-                
+
+                # create function reference for increased speed
+                Bag_append = self.Bag_o_words.append
+                Doc_append = self.Doc_wordlist[doc_name].append
+
                 # read the file into a string then close the file
                 doc_path = "TC_provided" + doc_name
                 doc_file = open(doc_path, "r")
@@ -104,26 +123,20 @@ class TC_System:
                 sentence_segmenter = nltk.data.load("tokenizers/punkt/english.pickle")
                 doc_sentences = sentence_segmenter.tokenize(document.strip())
 
-                # tokenize each sentence
+                # tokenize each sentence and construct wordlist sans stoplist words
                 for sentence in doc_sentences:
                     tokens = nltk.word_tokenize(sentence)
                     for word in tokens:
-                        if word not in self.Bag_o_words:
-                            self.Bag_o_words.append(word)
+                        word = word.lower()
+                        stopped = word in self.__STOPLIST
+                        if not stopped and word not in self.Bag_o_words:
+                            Bag_append(word) # self.Bag_o_words.append(word)
                             
                         # make wordlist for every document (with repeats)
-                        self.Doc_wordlist[doc_name].append(word) 
-                            
-
-        # strip words in the stoplist from the bag-o-words and document word vectors
-        for stop_sign in self.STOPLIST:
-            try:
-                self.Bag_o_words.remove(stop_sign)
-            except ValueError: # raised if stop_sign not in bag-o-words
-                pass
+                        if not stopped:
+                            Doc_append(word) # self.Doc_wordlist[doc_name].append(word)                         
                         
-                        
-    def __TF_IDF(self, wordlist, Cat_vector):
+    def __TF_IDF(self):#, wordlist, Cat_vector):
         """ Will compute the TF*IDF value and return the document vectors (containing word weights)"""    
         DF = {} # create an empty document frequency vector for words
         for category in self.Categories:
@@ -148,6 +161,23 @@ class TC_System:
         D_bar = len(self.Doc_wordlist) # |D| : number of documents
         for word in self.Bag_o_words:
             # print(word)
-            self.__IDF[word] = math.log(D_bar/DF[word])
-        print("this is TF*IDF")
+            try:
+                self.__IDF[word] = math.log(D_bar/DF[word])
+            except ZeroDivisionError:
+                print(word)
+                self.__IDF[word] = -1
 
+        # compute document word weights
+        Doc_vectors = {}
+        for category in self.Categories:
+            for document in self.Cat_vector[category]:
+                Doc_vectors[document] = {} # creating empty dictionary
+                for word in self.Bag_o_words:
+                    Doc_vectors[document][word] = \
+                        self.__TF[document][word]*self.__IDF[word]
+
+        return Doc_vectors            
+
+if __name__ == "__main__":
+    print("You ran this module directly. I'm afraid I can't let you do that.")
+    input("Press the enter key to exit now.")
