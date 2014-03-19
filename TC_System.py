@@ -22,7 +22,8 @@ class TC_System:
     # Constructor. Modifies the stoplist to remove tokens it doesn't need
     def __init__(self):
         self.__STOPLIST.update(["(", ",", ")", "'s", ".", "-", "--", "n't", \
-                                "''", "``", ":", "reuters", "...", "<", ">"])
+                                "''", "``", ":", "reuters", "...", "<", ">" \
+                                "'"])
         print("This is your captain speaking. Please enjoy your ride as we " \
               "utilize this text categorization system")
         
@@ -100,8 +101,6 @@ class TC_System:
         pickle.dump(self.Categories, f)
         pickle.dump(self.Prototype, f)
         f.close()
-        print("Mission Accomplished.\nThank you for choosing us " \
-              "for your text categorization needs.")
 
     def load(self, trained_name):
         """ will unpickle the object representing the trained system and load it up"""
@@ -109,7 +108,7 @@ class TC_System:
         self.Categories = pickle.load(f)
         self.Prototype = pickle.load(f)
         f.close()
-        print("this will unpickle the required object(s)")
+        #print("this will unpickle the required object(s)")
 
     def test(self, test_name):
         """ Will test the documents given to the structure it has learned. """
@@ -147,7 +146,9 @@ class TC_System:
         for document in self.Doc_list:
             doc_max = 0 # temp variable for finding max
             for category in self.Categories:
-                proto_mag = sum(self.Prototype[category].values()**2)**0.5#||c||
+                # ||c|| = sqrt(sum(c_i^2))
+                proto_mag = sum([val**2 for val in self.Prototype[category].values()])**0.5
+                #proto_mag = sum(self.Prototype[category].values()**2)**0.5#||c||
 
                 # calculating the similarity value
                 for word in self.Doc_wordlist[document]:

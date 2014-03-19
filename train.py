@@ -28,8 +28,11 @@ def main():
     out_name = "cat1out.dat" #input("What name would you like to give the trained system?: ")
     TC.write_trained(out_name)
 
-    print("Printing the object")
-    print(TC)
+    print("Mission Accomplished.\nThank you for choosing us " \
+      "for your text categorization needs.")
+
+    #print("Printing the object")
+    #print(TC)
     
     
 main()
