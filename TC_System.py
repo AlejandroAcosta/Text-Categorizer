@@ -76,7 +76,7 @@ class TC_System:
         
         # compute the document vector for every document as a dictionary
         # mapping document names to corresponding document vector
-        doc_vectors = self.__TF_IDF()#self.Bag_o_words, self.Cat_vector)
+        doc_vectors = self.__TF_IDF()
 
        # add up the category vector to create the prototype vector
         for category in self.Categories:
@@ -111,15 +111,69 @@ class TC_System:
         f.close()
         print("this will unpickle the required object(s)")
 
-    def test(self):
+    def test(self, test_name):
         """ Will test the documents given to the structure it has learned. """
-    
-        print("this is test")
+        # acquire the list of the documents then remove the dot from the filename
+        self.Doc_list = open(test_name,"r").read().splitlines()
+        self.Doc_list = [doc[1:] for doc in self.Doc_list]
 
-    def write_tested(self, out_filename):
+        # create the wordlist from the document list
+        self.__make_wordlist()
+
+        # compute the document vector for every document as a dictionary
+        # mapping document names to corresponding document vector
+        doc_vectors = self.__TF_IDF()
+
+        # calculate and return decision rule
+       return self.__decision(doc_vectors)
+
+    def write_tested(self, out_filename, category_vector):
         """ Writes tested file to output in appropriate format. """
-        pass
+        out_file = open(out_filename, "w")
+        for category in self.Categories:
+            # adding the period in the filename back in
+            category_vector[category] = \
+                ["."+document for document in category_vector[category]]
+            # formatting the data and writing it to the file
+            for document in category_vector[category]:
+                out_file.write(" ".join([document, category]))
+                out_file.write("\n")
+        out_file.write("\n")    
+        out_file.close()
 
+    def __decision(self, d_prime):
+        """ Applies the decision rule and places documents in appropriate category"""
+        category_vector = {}    # dict of categories to list of docs        
+        for document in self.Doc_list:
+            doc_max = 0 # temp variable for finding max
+            for category in self.Categories:
+                proto_mag = sum(self.Prototype)#||c||
+
+                # calculating the similarity value
+                for word in self.Doc_wordlist[document]:
+                    try:
+                        H += d_prime[document][word]*self.Prototype[category][word]
+                    except NameError: # H hasn't been initialized yet
+                        H = d_prime[document][word]*self.Prototype[category][word]
+                    except KeyError: # word doesn't show up in prototype vector
+                        pass         # do nothing. treating non-present word as 0
+
+                # normalizing the value
+                H /= proto_mag
+
+                # determining if this is max
+                if H > doc_max:
+                    doc_max = H
+                    doc_cat = category
+
+                try:
+                    category_vector[category].append(document)
+                except KeyError:
+                    category_vector[category] = [document]
+
+        return category_vector
+            
+    
     def __make_wordlist(self):
         """Looks at all the documents available and constructs a wordlist using nltk for assistance"""
         for doc_name in self.Doc_list:                

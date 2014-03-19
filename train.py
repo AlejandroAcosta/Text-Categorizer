@@ -33,4 +33,4 @@ def main():
     
     
 main()
-input("Thou hast finished")
+input("Your task has been shoved off this mortal coil\n")
