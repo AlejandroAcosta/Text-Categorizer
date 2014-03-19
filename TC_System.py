@@ -143,6 +143,7 @@ class TC_System:
     def __decision(self, d_prime):
         """ Applies the decision rule and places documents in appropriate category"""
         category_vector = {}    # dict of categories to list of docs        
+        H = 0
         for document in self.Doc_list:
             doc_max = 0 # temp variable for finding max
             for category in self.Categories:
@@ -154,8 +155,8 @@ class TC_System:
                 for word in self.Doc_wordlist[document]:
                     try:
                         H += d_prime[document][word]*self.Prototype[category][word]
-                    except NameError: # H hasn't been initialized yet
-                        H = d_prime[document][word]*self.Prototype[category][word]
+                    #except NameError: # H hasn't been initialized yet
+                    #    H = d_prime[document][word]*self.Prototype[category][word]
                     except KeyError: # word doesn't show up in prototype vector
                         pass         # do nothing. treating non-present word as 0
 
