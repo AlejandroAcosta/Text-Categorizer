@@ -125,7 +125,7 @@ class TC_System:
         doc_vectors = self.__TF_IDF()
 
         # calculate and return decision rule
-       return self.__decision(doc_vectors)
+        return self.__decision(doc_vectors)
 
     def write_tested(self, out_filename, category_vector):
         """ Writes tested file to output in appropriate format. """
@@ -147,7 +147,7 @@ class TC_System:
         for document in self.Doc_list:
             doc_max = 0 # temp variable for finding max
             for category in self.Categories:
-                proto_mag = sum(self.Prototype)#||c||
+                proto_mag = sum(self.Prototype[category].values()**2)**0.5#||c||
 
                 # calculating the similarity value
                 for word in self.Doc_wordlist[document]:
