@@ -9,10 +9,7 @@ from TC_System import TC_System
 
 # main method. Goes through the highest level logic of the system, calling functions to do the technical work
 def main():
-    # TC_provided/corpus1_train.labels OR
-    # TC_provided/corpus2_train.labels OR
-    # TC_provided/corpus3_train.labels are the training files for this project
-    train_name = "TC_provided/corpus1_train.labels" #input("Please enter the name for your trainig file: ")
+    train_name = input("Please enter the name for your training file: ")
 
     TC = TC_System()
 
@@ -25,15 +22,11 @@ def main():
     TC.train(Cat_vector)
     print("Your system has been trained.")
 
-    out_name = "cat1out.dat" #input("What name would you like to give the trained system?: ")
+    out_name = input("What name would you like to give the trained system?: ")
     TC.write_trained(out_name)
 
     print("Mission Accomplished.\nThank you for choosing us " \
-      "for your text categorization needs.")
-
-    #print("Printing the object")
-    #print(TC)
-    
+      "for your text categorization needs.")  
     
 main()
 input("Your task has been shoved off this mortal coil\n")

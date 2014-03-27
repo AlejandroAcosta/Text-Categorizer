@@ -1,6 +1,6 @@
 # Text Categorizer class
 
-import nltk, math, pickle
+import nltk, math, pickle, os
 
 class TC_System:
     """A Text Categorization System that implements training and testing functionality"""
@@ -9,15 +9,14 @@ class TC_System:
     __STOPLIST = set(nltk.corpus.stopwords.words('english'))
 
     # Variables defining the system 
-    Categories = [] # vector of the different categories that exist
-    Doc_list = []   # list of all the document names
-    #Cat_vector = {} # category vector: contains list of documents
-                    # corresponding to each category
-    Prototype = {} # prototype vector representing trained system
-    Bag_o_words = [] # list of all words in corpus
-    Doc_wordlist = {} # wordlist associated with every document
-    __TF = {} # Term Frequency for all words and all documents
-    __IDF = {} # Inverse Document Frequency for all documents
+    Categories = []     # vector of the different categories that exist
+    Doc_list = []       # list of all the document names
+    Prototype = {}      # prototype vector representing trained system
+    Bag_o_words = []    # list of all words in corpus
+    Doc_wordlist = {}   # wordlist associated with every document
+    doc_path = ""       # base path for the file being read for training/testing docs
+    __TF = {}           # Term Frequency for all words and all documents
+    __IDF = {}          # Inverse Document Frequency for all documents
 
     # Constructor. Modifies the stoplist to remove tokens it doesn't need
     def __init__(self):
@@ -29,7 +28,6 @@ class TC_System:
         
     def __str__(self):
         """prints the data members of the class for debugging purposes"""
-        #print(Doc_wordlist)
         out_file = open("testout.txt","w")
         for doc in self.Doc_wordlist:
             out_file.write(doc + str(self.Doc_wordlist[doc]))
@@ -38,11 +36,15 @@ class TC_System:
         out_file.close()
         rep = str("written to testout.txt")
         return rep
-        
+
     def categorize(self, train_name):
         """open file, read from it, and then close it"""
         train_file = open(train_name, "r")
         documents = train_file.readlines()
+        self.doc_path = os.path.basename(os.path.dirname(train_name))
+        if(self.doc_path != ""):
+            self.doc_path.append("/")
+            
         train_file.close()
 
         # category vector containing dictionary mapping categories to documents
@@ -69,7 +71,15 @@ class TC_System:
             self.Doc_list.append(document_name)
             
         return Cat_vector
-        
+
+    def load(self, trained_name):
+        """ will unpickle the object representing the trained system and load it up"""
+        f = open(trained_name, "rb")
+        self.Categories = pickle.load(f)
+        self.Prototype = pickle.load(f)
+        f.close()
+        #print("this will unpickle the required object(s)")
+
     def train(self, category_vector):
         """will train the dataset"""
         # compile the wordlist
@@ -94,27 +104,16 @@ class TC_System:
                         #print(doc_vectors[document][word])
                         self.Prototype[category][word] = doc_vectors[document][word]
 
-
-    def write_trained(self, out_filename):
-        """  write trained system to file. """
-        f = open(out_filename, "wb")
-        pickle.dump(self.Categories, f)
-        pickle.dump(self.Prototype, f)
-        f.close()
-
-    def load(self, trained_name):
-        """ will unpickle the object representing the trained system and load it up"""
-        f = open(trained_name, "rb")
-        self.Categories = pickle.load(f)
-        self.Prototype = pickle.load(f)
-        f.close()
-        #print("this will unpickle the required object(s)")
-
     def test(self, test_name):
         """ Will test the documents given to the structure it has learned. """
         # acquire the list of the documents then remove the dot from the filename
-        self.Doc_list = open(test_name,"r").read().splitlines()
+        test_file = open(test_name, "r")
+        self.Doc_list = test_file.read().splitlines()
         self.Doc_list = [doc[1:] for doc in self.Doc_list]
+        self.doc_path = os.path.basename(os.path.dirname(test_name))
+        if(self.doc_path != ""):
+            self.doc_path.append("/") 
+        test_file.close()
 
         # create the wordlist from the document list
         self.__make_wordlist()
@@ -125,6 +124,13 @@ class TC_System:
 
         # calculate and return decision rule
         return self.__decision(doc_vectors)
+        
+    def write_trained(self, out_filename):
+        """  write trained system to file. """
+        f = open(out_filename, "wb")
+        pickle.dump(self.Categories, f)
+        pickle.dump(self.Prototype, f)
+        f.close()
 
     def write_tested(self, out_filename, category_vector):
         """ Writes tested file to output in appropriate format. """
@@ -137,45 +143,8 @@ class TC_System:
             for document in category_vector[category]:
                 out_file.write(" ".join([document, category]))
                 out_file.write("\n")
-        out_file.write("\n")    
-        out_file.close()
+        out_file.close()     
 
-    def __decision(self, d_prime):
-        """ Applies the decision rule and places documents in appropriate category"""
-        category_vector = {}    # dict of categories to list of docs        
-        H = 0
-        for document in self.Doc_list:
-            doc_max = 0 # temp variable for finding max
-            for category in self.Categories:
-                # ||c|| = sqrt(sum(c_i^2))
-                proto_mag = sum([val**2 for val in self.Prototype[category].values()])**0.5
-                #proto_mag = sum(self.Prototype[category].values()**2)**0.5#||c||
-
-                # calculating the similarity value
-                for word in self.Doc_wordlist[document]:
-                    try:
-                        H += d_prime[document][word]*self.Prototype[category][word]
-                    #except NameError: # H hasn't been initialized yet
-                    #    H = d_prime[document][word]*self.Prototype[category][word]
-                    except KeyError: # word doesn't show up in prototype vector
-                        pass         # do nothing. treating non-present word as 0
-
-                # normalizing the value
-                H /= proto_mag
-
-                # determining if this is max
-                if H > doc_max:
-                    doc_max = H
-                    doc_cat = category
-
-                try:
-                    category_vector[category].append(document)
-                except KeyError:
-                    category_vector[category] = [document]
-
-        return category_vector
-            
-    
     def __make_wordlist(self):
         """Looks at all the documents available and constructs a wordlist using nltk for assistance"""
         for doc_name in self.Doc_list:                
@@ -187,8 +156,8 @@ class TC_System:
             Doc_append = self.Doc_wordlist[doc_name].append
 
             # read the file into a string then close the file
-            doc_path = "TC_provided" + doc_name
-            doc_file = open(doc_path, "r")
+            document_path = self.doc_path + doc_name[1:]
+            doc_file = open(document_path, "r")
             document = doc_file.read()
             doc_file.close()
 
@@ -249,6 +218,41 @@ class TC_System:
 
         return Doc_vectors            
 
+    def __decision(self, d_prime):
+        """ Applies the decision rule and places documents in appropriate category"""
+        category_vector = {}    # dict of categories to list of docs        
+        H = 0
+        for document in self.Doc_list:
+            doc_max = 0 # temp variable for finding max
+            for category in self.Categories:
+                # ||c|| = sqrt(sum(c_i^2))
+                proto_mag = sum([val**2 for val in self.Prototype[category].values()])**0.5
+                #proto_mag = sum(self.Prototype[category].values()**2)**0.5#||c||
+
+                # calculating the similarity value
+                for word in self.Doc_wordlist[document]:
+                    try:
+                        H += d_prime[document][word]*self.Prototype[category][word]
+                    # except NameError: # H hasn't been initialized yet
+                    #    H = d_prime[document][word]*self.Prototype[category][word]
+                    except KeyError: # word doesn't show up in prototype vector
+                        pass         # do nothing. treating non-present word as 0
+
+                # normalizing the value
+                H /= proto_mag
+
+                # determining if this is max
+                if H > doc_max:
+                    doc_max = H
+                    doc_cat = category
+
+            try:
+                category_vector[doc_cat].append(document)
+            except KeyError:
+                category_vector[doc_cat] = [document]
+
+        return category_vector
+    
 if __name__ == "__main__":
     print("You ran this module directly. I'm afraid I can't let you do that.")
     input("Press the enter key to exit now.")
