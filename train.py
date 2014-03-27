@@ -20,11 +20,8 @@ def main():
 
 
     print("Your system is being trained...")
-    start = time.time()
     TC.train(Cat_vector)
-    end = time.time()
     print("Your system has been trained.")
-    print("Training took " + str(end-start) + " seconds")
 
     out_name = input("What name would you like to give the trained system?: ")
     TC.write_trained(out_name)

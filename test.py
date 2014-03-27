@@ -8,27 +8,19 @@
 #import required modules
 from TC_System import TC_System
 
-import time
-
 # main method. Goes through highest level logic of the system
 def main():
     trained_name = input("Please enter the name of your trained file: ")
     TC = TC_System()
 
     print("Please wait as I load the trained system...")
-    start = time.time()
     TC.load(trained_name)
-    end = time.time()
     print("Your system has been loaded.")
-    print("Training took " + str(end-start) + " seconds")
 
     test_name = input("Please enter the name of the testing file: ")
     print("Please wait as I process the data to be tested...")
-    start = time.time()
     category_vector = TC.test(test_name)
-    end = time.time()
     print("Data tested")
-    print("Testing took " + str(end-start) + " seconds")
     
     out_name = input("What would you like to call your results?: ") 
     print("Writing out your categorized data...")
