@@ -6,6 +6,7 @@
 
 # import required modules
 from TC_System import TC_System
+import time
 
 # main method. Goes through the highest level logic of the system, calling functions to do the technical work
 def main():
@@ -19,8 +20,11 @@ def main():
 
 
     print("Your system is being trained...")
+    start = time.time()
     TC.train(Cat_vector)
+    end = time.time()
     print("Your system has been trained.")
+    print("Training took " + str(end-start) + " seconds")
 
     out_name = input("What name would you like to give the trained system?: ")
     TC.write_trained(out_name)

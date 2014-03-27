@@ -2,6 +2,8 @@
 
 import nltk, math, pickle, os
 
+import time
+
 class TC_System:
     """A Text Categorization System that implements training and testing functionality"""
 
@@ -43,7 +45,7 @@ class TC_System:
         documents = train_file.readlines()
         self.doc_path = os.path.basename(os.path.dirname(train_name))
         if(self.doc_path != ""):
-            self.doc_path.append("/")
+            self.doc_path += "/"
             
         train_file.close()
 
@@ -83,11 +85,17 @@ class TC_System:
     def train(self, category_vector):
         """will train the dataset"""
         # compile the wordlist
+        start = time.time()
         self.__make_wordlist()
+        end = time.time()
+        print("Making the wordlist took " + str(end-start) + " seconds")
         
         # compute the document vector for every document as a dictionary
         # mapping document names to corresponding document vector
+        start = time.time()
         doc_vectors = self.__TF_IDF()
+        end = time.time()
+        print("Calculating TF/IDF took " + str(end-start) + " seconds")
 
        # add up the category vector to create the prototype vector
         for category in self.Categories:
@@ -112,7 +120,7 @@ class TC_System:
         self.Doc_list = [doc[1:] for doc in self.Doc_list]
         self.doc_path = os.path.basename(os.path.dirname(test_name))
         if(self.doc_path != ""):
-            self.doc_path.append("/") 
+            self.doc_path += "/"
         test_file.close()
 
         # create the wordlist from the document list
@@ -176,20 +184,38 @@ class TC_System:
                         
                     # make wordlist for every document (with repeats)
                     if not stopped:
-                        Doc_append(word) # self.Doc_wordlist[doc_name].append(word)                         
+                        Doc_append(word) # self.Doc_wordlist[doc_name].append(word)
                         
     def __TF_IDF(self):#, wordlist, Cat_vector):
         """ Will compute the TF*IDF value and return the document vectors (containing word weights)"""    
         DF = {} # create an empty document frequency vector for words
+        start = time.time()
         for document in self.Doc_list:
-            for word in self.Bag_o_words:
+            Doc_count = self.Doc_wordlist[document].count
+            for word in set(self.Doc_wordlist[document]):
                 # computing TF
                 try: # test to see if document has TF vector
-                    len(self.__TF[document])
-                except KeyError: # create one if it doesn't
+                    self.__TF[document][word] = Doc_count(word)
+                except KeyError: # create one if it doesn't and add the count
                     self.__TF[document] = {}
-                finally: # and finally add the wordcount to it
-                    self.__TF[document][word] = self.Doc_wordlist[document].count(word)
+                    self.__TF[document][word] = Doc_count(word)
+        # inefficiency, going through all words not just those in the document
+##        for document in self.Doc_list:
+##            Doc_count = self.Doc_wordlist[document].count
+##            for word in self.Bag_o_words:
+##                # computing TF
+##                try: # test to see if document has TF vector
+##                    self.__TF[document][word] = Doc_count(word)
+##                except KeyError: # create one if it doesn't and add the count
+##                    self.__TF[document] = {}
+##                    self.__TF[document][word] = Doc_count(word)
+                    
+##                try: # test to see if document has TF vector
+##                    len(self.__TF[document])
+##                except KeyError: # create one if it doesn't
+##                    self.__TF[document] = {}
+##                finally: # and finally add the wordcount to it
+##                    self.__TF[document][word] = Doc_count(word) #self.Doc_wordlist[document].count(word)
 
                 # computing DF
                 if word in self.Doc_wordlist[document]:
@@ -197,7 +223,9 @@ class TC_System:
                         DF[word] += 1
                     except KeyError: # initialize DF to 1
                         DF[word] = 1
-                            
+        end = time.time()
+        #print("Calculating DF took " + str(end-start) + " seconds")
+        
         # compute IDF
         D_bar = len(self.Doc_wordlist) # |D| : number of documents
         for word in self.Bag_o_words:
@@ -207,15 +235,17 @@ class TC_System:
             except ZeroDivisionError:
                 print(word)
                 self.__IDF[word] = -1
-
+        
         # compute document word weights
         Doc_vectors = {}
+        start = time.time()
         for document in self.Doc_list:
             Doc_vectors[document] = {} # creating empty dictionary
-            for word in self.Bag_o_words:
+            for word in self.Doc_wordlist[document]:
                 Doc_vectors[document][word] = \
                     self.__TF[document][word]*self.__IDF[word]
-
+        end = time.time()
+        print("Computing document word weights took " + str(end-start) + " seconds")
         return Doc_vectors            
 
     def __decision(self, d_prime):
