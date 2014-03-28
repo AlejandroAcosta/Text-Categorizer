@@ -14,19 +14,19 @@ def main():
 
     TC = TC_System()
 
-    print("Please wait as I process your corpus")
+    print("Please wait as I process your corpus\n")
     Cat_vector = TC.categorize(train_name)
-    print("Categorization complete")
+    print("Categorization complete\n")
 
 
-    print("Your system is being trained...")
+    print("Your system is being trained...\n")
     TC.train(Cat_vector)
-    print("Your system has been trained.")
+    print("Your system has been trained.\n")
 
     out_name = input("What name would you like to give the trained system?: ")
     TC.write_trained(out_name)
 
-    print("Mission Accomplished.\nThank you for choosing us " \
+    print("\nMission Accomplished.\nThank you for choosing us " \
       "for your text categorization needs.")  
     
 main()

@@ -13,17 +13,17 @@ def main():
     trained_name = input("Please enter the name of your trained file: ")
     TC = TC_System()
 
-    print("Please wait as I load the trained system...")
+    print("Please wait as I load the trained system...\n")
     TC.load(trained_name)
-    print("Your system has been loaded.")
+    print("Your system has been loaded.\n")
 
     test_name = input("Please enter the name of the testing file: ")
-    print("Please wait as I process the data to be tested...")
+    print("Please wait as I process the data to be tested...\n")
     category_vector = TC.test(test_name)
-    print("Data tested")
+    print("Data tested\n")
     
     out_name = input("What would you like to call your results?: ") 
-    print("Writing out your categorized data...")
+    print("Writing out your categorized data...\n")
     TC.write_tested(out_name, category_vector)
 
 main()

@@ -2,10 +2,20 @@
 
 import nltk, math, pickle, os
 
-use_stoplist = False
-use_stemming = True
-use_POS_tagging = True
+use_stoplist = True # using it reduces accuracy alone to ~82.39%
+use_stemming = True  # porter stemming improved accuracy along to ~82.62%
+use_POS_tagging = False # using it reduces speed and does not noticeably change accuracy
+use_lower = False    # Makes no difference
 
+# stoplist + stemming = 82.84% relatively speedy
+# stoplist + stemming + lower = 82.39%
+# stoplist + stemming + lower + POS = 81.94% slow as fuck
+# stoplist + stemming + POS = 81.72% slow as fuck
+# stoplist = 81.72% relatively speedy
+# stemming = 81.72% relatively speedy
+# POS =  81.94% slow as fuck
+# lower =  82.39% relatively speedy
+# none = 82.39% relatively speedy
 class TC_System:
     """A Text Categorization System that implements training and testing functionality"""
 
@@ -169,14 +179,35 @@ class TC_System:
             sentence_segmenter = nltk.data.load("tokenizers/punkt/english.pickle")
             doc_sentences = sentence_segmenter.tokenize(document.strip())
 
-            # tokenize each sentence and construct wordlist sans stoplist words
+            # tokenize each sentence and construct wordlist with chosen added attributes
             for sentence in doc_sentences:
                 tokens = nltk.word_tokenize(sentence)
+                if use_POS_tagging:
+                    tokens = nltk.pos_tag(tokens)
                 for word in tokens:
-                    word = word.lower()
+                    if use_lower:   # option to lowercase the words
+                        if use_POS_tagging: 
+                            word_index = tokens.index(word)
+                            word = (word[0].lower(), word[1])
+                            tokens[word_index] = word
+                        else:
+                            word = word.lower()
+
+                    if use_stemming:    # option to use stemming
+                        st = nltk.stem.porter.PorterStemmer()
+                        if use_POS_tagging: 
+                            word_index = tokens.index(word)
+                            word = (st.stem(word[0]), word[1])
+                            tokens[word_index] = word
+                        else:
+                            word = st.stem(word)
+                        
                     # if option to use stoplist is active use it. else don't
                     if use_stoplist:
-                        stopped = word in self.__STOPLIST
+                        if use_POS_tagging:
+                            stopped = word[0] in self.__STOPLIST
+                        else:
+                            stopped = word in self.__STOPLIST
                     else:
                         stopped = False
                         
