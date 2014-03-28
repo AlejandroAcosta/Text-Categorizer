@@ -2,6 +2,10 @@
 
 import nltk, math, pickle, os
 
+use_stoplist = False
+use_stemming = True
+use_POS_tagging = True
+
 class TC_System:
     """A Text Categorization System that implements training and testing functionality"""
 
@@ -83,17 +87,11 @@ class TC_System:
     def train(self, category_vector):
         """will train the dataset"""
         # compile the wordlist
-        start = time.time()
         self.__make_wordlist()
-        end = time.time()
-        print("Making the wordlist took " + str(end-start) + " seconds")
         
         # compute the document vector for every document as a dictionary
         # mapping document names to corresponding document vector
-        start = time.time()
         doc_vectors = self.__TF_IDF()
-        end = time.time()
-        print("Calculating TF/IDF took " + str(end-start) + " seconds")
 
        # add up the category vector to create the prototype vector
         for category in self.Categories:
@@ -176,7 +174,12 @@ class TC_System:
                 tokens = nltk.word_tokenize(sentence)
                 for word in tokens:
                     word = word.lower()
-                    stopped = word in self.__STOPLIST
+                    # if option to use stoplist is active use it. else don't
+                    if use_stoplist:
+                        stopped = word in self.__STOPLIST
+                    else:
+                        stopped = False
+                        
                     if not stopped and word not in self.Bag_o_words:
                         Bag_append(word) # self.Bag_o_words.append(word)
                         
